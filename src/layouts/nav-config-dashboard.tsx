@@ -19,20 +19,20 @@ export const navData = [
     icon: icon('ic-analytics'),
   },
   {
-    title: 'User',
+    title: 'Players',
     path: '/user',
     icon: icon('ic-user'),
   },
-  {
-    title: 'Reports',
-    path: '/products',
-    icon: icon('ic-cart'),
-    info: (
-      <Label color="error" variant="inverted">
-        +3
-      </Label>
-    ),
-  },
+  // {
+  //   title: 'Transactions',
+  //   path: '/transactions',
+  //   icon: icon('ic-cart'),
+  //   info: (
+  //     <Label color="error" variant="inverted">
+  //       +3
+  //     </Label>
+  //   ),
+  // },
   // {
   //   title: 'Blog',
   //   path: '/blog',

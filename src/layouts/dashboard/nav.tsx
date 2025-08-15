@@ -112,7 +112,7 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
 
   return (
     <>
-      <Logo />
+      {/* <Logo /> */}
 
       {slots?.topArea}
 

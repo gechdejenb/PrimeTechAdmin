@@ -80,13 +80,13 @@ export function DashboardLayout({
           <Searchbar />
 
           {/** @slot Language popover */}
-          <LanguagePopover data={_langs} />
+          {/* <LanguagePopover data={_langs} /> */}
 
           {/** @slot Notifications popover */}
-          <NotificationsPopover data={_notifications} />
+          {/* <NotificationsPopover data={_notifications} /> */}
 
           {/** @slot Account drawer */}
-          <AccountPopover data={_account} />
+          {/* <AccountPopover data={_account} /> */}
         </Box>
       ),
     };

@@ -1,38 +1,45 @@
-import { useState, useCallback } from 'react';
-
+// src/views/UserView.tsx
+import { useState, useEffect, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
 import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { _users } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
-
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-
 import { TableNoData } from '../table-no-data';
 import { UserTableRow } from '../user-table-row';
 import { UserTableHead } from '../user-table-head';
 import { TableEmptyRows } from '../table-empty-rows';
 import { UserTableToolbar } from '../user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
-
-import type { UserProps } from '../user-table-row';
-
-// ----------------------------------------------------------------------
+import { getAllUsers,getAllTransactions } from '../../../convexCLient/report';
+import { UserProps } from 'src/types/user';
 
 export function UserView() {
   const table = useTable();
-
   const [filterName, setFilterName] = useState('');
+  const [users, setUsers] = useState<UserProps[]>([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const fetchedUsers = await getAllUsers();
+        setUsers(fetchedUsers as UserProps[]);
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+        setUsers([]);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const dataFiltered: UserProps[] = applyFilter({
-    inputData: _users,
+    inputData: users,
     comparator: getComparator(table.order, table.orderBy),
     filterName,
   });
@@ -41,23 +48,24 @@ export function UserView() {
 
   return (
     <DashboardContent>
-      <Box
-        sx={{
-          mb: 5,
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Users
-        </Typography>
-        <Button
-          variant="contained"
-          color="inherit"
-          startIcon={<Iconify icon="mingcute:add-line" />}
+      <Box sx={{ 
+        mb: 5, 
+        display: 'flex', 
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(173, 216, 230, 0.3)',
+        padding: 2,
+        borderRadius: 1
+      }}>
+        <Typography 
+          variant="h3" 
+          sx={{ 
+            fontWeight: 'bold',
+            color: 'primary.main'
+          }}
         >
-          New user
-        </Button>
+          Total Users: {users.length}
+        </Typography>
       </Box>
 
       <Card>
@@ -76,22 +84,23 @@ export function UserView() {
               <UserTableHead
                 order={table.order}
                 orderBy={table.orderBy}
-                rowCount={_users.length}
+                rowCount={users.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
-                    _users.map((user) => user.id)
+                    users.map((user) => user._id)
                   )
                 }
                 headLabel={[
                   { id: 'name', label: 'Name' },
-                  { id: 'company', label: 'Company' },
-                  { id: 'role', label: 'Role' },
+                  { id: 'userId', label: 'User ID' },
+                  { id: 'agentLevel', label: 'Agent Level' },
+                  { id: 'balance', label: 'Balance', align: 'right' },
                   { id: 'isVerified', label: 'Verified', align: 'center' },
                   { id: 'status', label: 'Status' },
-                  { id: '' },
+                  { id: '', label: '' },
                 ]}
               />
               <TableBody>
@@ -102,16 +111,16 @@ export function UserView() {
                   )
                   .map((row) => (
                     <UserTableRow
-                      key={row.id}
-                      row={row}
-                      selected={table.selected.includes(row.id)}
-                      onSelectRow={() => table.onSelectRow(row.id)}
+                      key={row._id}
+                      row={{ ...row, status: row.lastActive ? 'active' : 'inactive' }}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
                     />
                   ))}
 
                 <TableEmptyRows
                   height={68}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, _users.length)}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, users.length)}
                 />
 
                 {notFound && <TableNoData searchQuery={filterName} />}
@@ -123,10 +132,10 @@ export function UserView() {
         <TablePagination
           component="div"
           page={table.page}
-          count={_users.length}
+          count={users.length}
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[25, 50, 100]}
           onRowsPerPageChange={table.onChangeRowsPerPage}
         />
       </Card>
@@ -134,7 +143,6 @@ export function UserView() {
   );
 }
 
-// ----------------------------------------------------------------------
 
 export function useTable() {
   const [page, setPage] = useState(0);
@@ -165,7 +173,6 @@ export function useTable() {
       const newSelected = selected.includes(inputValue)
         ? selected.filter((value) => value !== inputValue)
         : [...selected, inputValue];
-
       setSelected(newSelected);
     },
     [selected]

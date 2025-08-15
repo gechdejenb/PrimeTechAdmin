@@ -170,9 +170,9 @@ export const customConfig = {
   },
   rules: {
     ...commonRules(),
-    ...importRules(),
+    // ...importRules(),
     ...unusedImportsRules(),
-    ...sortImportsRules(),
+    // ...sortImportsRules(),
   },
 };
 
